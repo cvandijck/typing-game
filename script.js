@@ -17,7 +17,7 @@ function typingGame() {
     useLetters: localStorage.getItem("useLetters") !== "false",
     useNumbers: localStorage.getItem("useNumbers") !== "false",
     useSpecial: localStorage.getItem("useSpecial") === "true",
-    letters: "",
+    characters: "",
 
     // Constants
     LETTERS: "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
@@ -41,34 +41,82 @@ function typingGame() {
     },
 
     // Update character set
-    updateLetters() {
-      this.letters = "";
-      if (this.useLetters) this.letters += this.LETTERS;
-      if (this.useNumbers) this.letters += this.NUMBERS;
-      if (this.useSpecial) this.letters += this.SPECIAL;
+    updateCharacters() {
+      this.characters = "";
+      if (this.useLetters) this.characters += this.LETTERS;
+      if (this.useNumbers) this.characters += this.NUMBERS;
+      if (this.useSpecial) this.characters += this.SPECIAL;
 
-      if (this.letters.length === 0) {
-        this.letters = this.LETTERS;
-        this.useLetters = true;
+      if (this.characters.length === 0) {
+        this.characters = this.NUMBERS;
+        this.useNumbers = true;
       }
 
-      localStorage.setItem("useLetters", this.useLetters);
       localStorage.setItem("useNumbers", this.useNumbers);
+      localStorage.setItem("useLetters", this.useLetters);
       localStorage.setItem("useSpecial", this.useSpecial);
 
       this.pick();
     },
 
+    // Spell out character using Web Speech API or Talkify
+    speakCharacter(char, addPrefix = true) {
+      const charText = this.getCharacterText(char, addPrefix);
+      if (!charText) return;
+
+      const langMap = {
+        en: "en-US",
+        nl: "nl-NL",
+        fr: "fr-FR",
+        de: "de-DE",
+      };
+
+      const lang = langMap[this.language] || "en-US";
+
+      // Fallback to Web Speech API
+      const utterance = new SpeechSynthesisUtterance(charText);
+      if (this.language === "en") {
+        const synth = window.speechSynthesis;
+        const voices = synth.getVoices();
+        const langVoices = voices.filter((v) => v.lang.startsWith(lang.split("-")[0]));
+        utterance.voice = langVoices[8];
+      }
+      utterance.lang = lang;
+      utterance.rate = 0.8; // Slower for kids
+      speechSynthesis.cancel(); // Cancel any ongoing speech
+      speechSynthesis.speak(utterance);
+    },
+
+    // Get readable name for character
+    getCharacterText(char, addPrefix = true) {
+      if (addPrefix === false) {
+        return char;
+      }
+
+      if (/[0-9]/i.test(char)) {
+        return this.t("prefix_number") + char;
+      }
+
+      if (/[A-Z]/i.test(char)) {
+        return this.t("prefix_letter") + char.toUpperCase();
+      }
+
+      return char;
+    },
+
     // Pick random character
     pick() {
-      if (this.letters.length === 0) {
-        this.updateLetters();
+      if (this.characters.length === 0) {
+        this.updateCharacters();
         return;
       }
-      this.current = this.letters.charAt(Math.floor(Math.random() * this.letters.length));
+      this.current = this.characters.charAt(Math.floor(Math.random() * this.characters.length));
       this.showCelebrate = false;
       this.showIncorrect = false;
       this.skipDisabled = false;
+
+      // Speak the character
+      this.speakCharacter(this.current, (addPrefix = true));
     },
 
     // Create balloons
@@ -99,6 +147,30 @@ function typingGame() {
       }
     },
 
+    playFunCelebration() {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+
+      function chirp(startFreq, endFreq, startTime) {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc.type = "triangle"; // friendlier sound
+        osc.frequency.setValueAtTime(startFreq, ctx.currentTime + startTime);
+        osc.frequency.exponentialRampToValueAtTime(endFreq, ctx.currentTime + startTime + 0.25);
+
+        gain.gain.setValueAtTime(0.25, ctx.currentTime + startTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + startTime + 0.25);
+
+        osc.connect(gain).connect(ctx.destination);
+        osc.start(ctx.currentTime + startTime);
+        osc.stop(ctx.currentTime + startTime + 0.25);
+      }
+
+      // two chirps → fun ascending effect
+      chirp(400, 800, 0);
+      chirp(600, 1200, 0.15);
+    },
+
     // Celebrate
     celebrateNow() {
       this.showCelebrate = true;
@@ -119,23 +191,8 @@ function typingGame() {
 
       this.createBalloons(14);
 
-      try {
-        const ctx = new (window.AudioContext || window.webkitAudioContext)();
-        const o = ctx.createOscillator();
-        const g = ctx.createGain();
-        o.type = "sine";
-        o.frequency.value = 880;
-        g.gain.value = 0.02;
-        o.connect(g);
-        g.connect(ctx.destination);
-        o.start();
-        setTimeout(() => {
-          o.stop();
-          ctx.close();
-        }, 220);
-      } catch (e) {
-        /* ignore */
-      }
+      // play a celebratory sound
+      this.playFunCelebration();
 
       setTimeout(() => {
         this.showCelebrate = false;
@@ -160,6 +217,8 @@ function typingGame() {
     onInput(val) {
       if (!val) return;
       const v = val.trim().charAt(0).toUpperCase();
+
+      this.speakCharacter(v, (addPrefix = false));
 
       if (v === this.current.toUpperCase()) {
         this.celebrateNow();
@@ -186,7 +245,7 @@ function typingGame() {
 
     // Initialize
     init() {
-      this.updateLetters();
+      this.updateCharacters();
 
       const menuBtn = document.querySelector(".menu-btn");
       if (menuBtn) {

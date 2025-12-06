@@ -6,60 +6,140 @@
     <title>Type the Character — Kids Game</title>
     <link rel="icon" type="image/svg+xml" href="favicon.svg" />
     <link rel="stylesheet" href="styles.css" />
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
   </head>
   <body>
-    <main class="wrap">
-      <h1 class="title">Press the key — have fun!</h1>
+    <main class="wrap" x-data="typingGame()">
+      <h1 class="title" x-text="t('title')">Press the key — have fun!</h1>
 
       <!-- Hamburger menu button -->
-      <button id="menuBtn" class="menu-btn" aria-label="Open settings">☰</button>
+      <button class="menu-btn" aria-label="Open settings">☰</button>
 
       <!-- Settings sidepanel -->
-      <div id="settings-panel" class="settings-panel">
+      <div class="settings-panel">
         <div class="panel-header">
-          <h2>Settings</h2>
-          <button id="closeBtn" class="close-btn" aria-label="Close settings">✕</button>
+          <h2 x-text="t('settings')">Settings</h2>
+          <button class="close-btn" aria-label="Close settings">✕</button>
         </div>
         <div class="panel-content">
           <div class="settings-section">
-            <h3>Characters</h3>
-            <label class="checkbox-label"> <input type="checkbox" id="numbers-check" checked /> Numbers (0-9) </label>
-            <label class="checkbox-label"> <input type="checkbox" id="letters-check" checked /> Letters (A-Z) </label>
-            <label class="checkbox-label"> <input type="checkbox" id="special-check" /> Special chars (!@#$%...) </label>
+            <h3 x-text="t('language')">Language</h3>
+            <div class="language-selector">
+              <button @click="setLanguage('en')" :class="{'lang-active': language === 'en'}" class="lang-btn">English</button>
+              <button @click="setLanguage('nl')" :class="{'lang-active': language === 'nl'}" class="lang-btn">Nederlands</button>
+              <button @click="setLanguage('fr')" :class="{'lang-active': language === 'fr'}" class="lang-btn">Français</button>
+              <button @click="setLanguage('de')" :class="{'lang-active': language === 'de'}" class="lang-btn">Deutsch</button>
+            </div>
+          </div>
+          <div class="settings-section">
+            <h3 x-text="t('characters')">Characters</h3>
+            <label class="checkbox-label">
+              <input type="checkbox" x-model="useNumbers" @change="updateLetters()" />
+              <span x-text="t('numbers')">Numbers (0-9)</span>
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" x-model="useLetters" @change="updateLetters()" />
+              <span x-text="t('letters')">Letters (A-Z)</span>
+            </label>
+            <label class="checkbox-label">
+              <input type="checkbox" x-model="useSpecial" @change="updateLetters()" />
+              <span x-text="t('special')">Special chars (!@#$%...)</span>
+            </label>
           </div>
         </div>
       </div>
 
       <!-- Overlay behind sidepanel -->
-      <div id="panel-overlay" class="panel-overlay"></div>
+      <div class="panel-overlay"></div>
 
       <div class="card">
-        <div class="top-banner">🌟 Welcome!</div>
-        <div class="target" id="target" aria-live="polite">A</div>
+        <div class="top-banner" x-text="t('welcome')">🌟 Welcome!</div>
+        <div class="target" x-text="current" aria-live="polite">A</div>
         <div class="controls">
-          <button id="newBtn" class="btn">Skip</button>
+          <button @click="pick()" :disabled="skipDisabled" class="btn" x-text="t('skip')">Skip</button>
         </div>
       </div>
 
-      <div id="celebrate" class="celebrate" aria-hidden="true">
+      <div x-show="showCelebrate" class="celebrate" aria-hidden="true">
         <!-- balloon container: script will spawn .balloon elements here -->
         <div id="balloons" class="balloon-container" aria-hidden="true"></div>
 
         <div class="celebrate-content">
           <div class="mascot">🎉</div>
-          <div class="message">Yay! Great job!</div>
+          <div class="message" x-text="t('great_job')">Yay! Great job!</div>
         </div>
       </div>
 
-      <div id="incorrect" class="incorrect-overlay" aria-hidden="true">
+      <div x-show="showIncorrect" class="incorrect-overlay" aria-hidden="true">
         <div class="incorrect-content">
           <div class="mascot-sad">😅</div>
-          <div class="message-wrong">Oops! Try again!</div>
+          <div class="message-wrong" x-text="t('try_again')">Oops! Try again!</div>
         </div>
       </div>
 
-      <footer class="footer">Press the correct key on your keyboard (case-insensitive).</footer>
+      <footer class="footer" x-text="t('footer')">Press the correct key on your keyboard (case-insensitive).</footer>
     </main>
+    <script>
+      // Translations embedded as global data (avoids CORS issues with file://)
+      window.translations = {
+        en: {
+          title: "Press the key — have fun!",
+          settings: "Settings",
+          characters: "Characters",
+          numbers: "Numbers (0-9)",
+          letters: "Letters (A-Z)",
+          special: "Special chars (!@#$%...)",
+          language: "Language",
+          welcome: "🌟 Welcome!",
+          skip: "Skip",
+          great_job: "Yay! Great job!",
+          try_again: "Oops! Try again!",
+          footer: "Press the correct key on your keyboard (case-insensitive).",
+        },
+        nl: {
+          title: "Druk op een toets — veel plezier!",
+          settings: "Instellingen",
+          characters: "Karakters",
+          numbers: "Nummers (0-9)",
+          letters: "Letters (A-Z)",
+          special: "Speciale tekens (!@#$%...)",
+          language: "Taal",
+          welcome: "🌟 Welkom!",
+          skip: "Overslaan",
+          great_job: "Ja! Prima gedaan!",
+          try_again: "Oeps! Probeer opnieuw!",
+          footer: "Druk de juiste toets op uw toetsenbord (niet gevoelig voor hoofd/kleine letters).",
+        },
+        fr: {
+          title: "Appuyez sur une touche — amusez-vous!",
+          settings: "Paramètres",
+          characters: "Caractères",
+          numbers: "Chiffres (0-9)",
+          letters: "Lettres (A-Z)",
+          special: "Caractères spéciaux (!@#$%...)",
+          language: "Langue",
+          welcome: "🌟 Bienvenue!",
+          skip: "Sauter",
+          great_job: "Ouais! Excellent travail!",
+          try_again: "Oups! Réessayez!",
+          footer: "Appuyez sur la bonne touche de votre clavier (insensible à la casse).",
+        },
+        de: {
+          title: "Drücke eine Taste — viel Spaß!",
+          settings: "Einstellungen",
+          characters: "Zeichen",
+          numbers: "Nummern (0-9)",
+          letters: "Buchstaben (A-Z)",
+          special: "Sonderzeichen (!@#$%...)",
+          language: "Sprache",
+          welcome: "🌟 Willkommen!",
+          skip: "Überspringen",
+          great_job: "Ja! Großartig gemacht!",
+          try_again: "Hoppla! Versuchen Sie es noch einmal!",
+          footer: "Drücken Sie die richtige Taste auf Ihrer Tastatur (Groß-/Kleinschreibung wird nicht berücksichtigt).",
+        },
+      };
+    </script>
     <script src="script.js"></script>
   </body>
 </html>

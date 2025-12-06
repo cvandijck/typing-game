@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Type the Character — Kids Game</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="wrap">
+      <h1 class="title">Press the key — have fun!</h1>
+
+      <!-- Hamburger menu button -->
+      <button id="menuBtn" class="menu-btn" aria-label="Open settings">☰</button>
+
+      <!-- Settings sidepanel -->
+      <div id="settings-panel" class="settings-panel">
+        <div class="panel-header">
+          <h2>Settings</h2>
+          <button id="closeBtn" class="close-btn" aria-label="Close settings">✕</button>
+        </div>
+        <div class="panel-content">
+          <div class="settings-section">
+            <h3>Characters</h3>
+            <label class="checkbox-label"> <input type="checkbox" id="numbers-check" checked /> Numbers (0-9) </label>
+            <label class="checkbox-label"> <input type="checkbox" id="letters-check" checked /> Letters (A-Z) </label>
+            <label class="checkbox-label"> <input type="checkbox" id="special-check" /> Special chars (!@#$%...) </label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Overlay behind sidepanel -->
+      <div id="panel-overlay" class="panel-overlay"></div>
+
+      <div class="card">
+        <div class="top-banner">🌟 Welcome!</div>
+        <div class="target" id="target" aria-live="polite">A</div>
+        <div class="controls">
+          <button id="newBtn" class="btn">Skip</button>
+        </div>
+      </div>
+
+      <div id="celebrate" class="celebrate" aria-hidden="true">
+        <!-- balloon container: script will spawn .balloon elements here -->
+        <div id="balloons" class="balloon-container" aria-hidden="true"></div>
+
+        <div class="celebrate-content">
+          <div class="mascot">🎉</div>
+          <div class="message">Yay! Great job!</div>
+        </div>
+      </div>
+
+      <div id="incorrect" class="incorrect-overlay" aria-hidden="true">
+        <div class="incorrect-content">
+          <div class="mascot-sad">😅</div>
+          <div class="message-wrong">Oops! Try again!</div>
+        </div>
+      </div>
+
+      <footer class="footer">Press the correct key on your keyboard (case-insensitive).</footer>
+    </main>
+    <script src="script.js"></script>
+  </body>
+</html>

@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6dd3ff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ff7aa2;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="keyGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#6dd3ff;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ff7aa2;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Background circle -->
+  <circle cx="50" cy="50" r="45" fill="url(#bgGradient)" stroke="#fff" stroke-width="2" opacity="0.95"/>
+
+  <!-- Keyboard key -->
+  <rect x="30" y="35" width="40" height="40" rx="4" fill="#fff" stroke="url(#keyGradient)" stroke-width="3"/>
+
+  <!-- Key letter/symbol -->
+  <text x="50" y="65" font-size="32" font-weight="bold" fill="url(#keyGradient)" text-anchor="middle" font-family="Arial, sans-serif">A</text>
+
+  <!-- Shine effect -->
+  <ellipse cx="42" cy="42" rx="8" ry="6" fill="white" opacity="0.5"/>
+</svg>

@@ -194,7 +194,8 @@ function typingGame() {
       // play a celebratory sound
       this.playFunCelebration();
 
-      setTimeout(() => {
+      clearTimeout(this.celebrateTimer);
+      this.celebrateTimer = setTimeout(() => {
         this.showCelebrate = false;
 
         if (celebrateEl) {
@@ -218,15 +219,17 @@ function typingGame() {
       if (!val) return;
       const v = val.trim().charAt(0).toUpperCase();
 
-      this.speakCharacter(v, (addPrefix = false));
-
       if (v === this.current.toUpperCase()) {
+        if (!this.skipDisabled) this.speakCharacter(v, false);
         this.celebrateNow();
         this.skipDisabled = true;
-        setTimeout(() => {
+        // Debounce: repeated hits extend the celebration but yield a single new letter
+        clearTimeout(this.pickTimer);
+        this.pickTimer = setTimeout(() => {
           this.pick();
         }, this.CELEBRATION_MS);
       } else {
+        this.speakCharacter(v, false);
         const incorrectEl = document.querySelector(".incorrect-overlay");
         if (incorrectEl) {
           incorrectEl.style.display = "flex";
